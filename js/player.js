@@ -662,8 +662,8 @@ async function addReport(currentItem) {
           return `${url} ${status}`;
         });
 
-        // 1000자 제한 및 저장
-        currentItem.report.HIVESTACK_URL = resultStrings.join('\n').substring(0, 1000);
+        // 3500자 제한 및 저장
+        currentItem.report.HIVESTACK_URL = resultStrings.join('\n').substring(0, 3500);
         shouldSaveReport = true;
       } catch (error) {
         console.log('Error processing Naver report URLs', error);
