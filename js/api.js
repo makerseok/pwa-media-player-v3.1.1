@@ -196,10 +196,11 @@ const getUrlFromNaver = async (naverUrl, retry = 0) => {
   const $xml = $.parseXML(response.data);
   const media = $xml.getElementsByTagName('MediaFile').item(0);
   const trackingElements = $xml.getElementsByTagName('Tracking');
-  if (!media) {
+  if (!media || media.getAttribute('type') !== 'video/mp4') {
     naverInfo = await getUrlFromNaver(naverUrl, retry + 1);
-  } else if (media.getAttribute('type') !== 'video/mp4') {
-    naverInfo = await getUrlFromNaver(naverUrl, retry + 1);
+    if (!naverInfo.success && !naverInfo.responseBody) {
+      naverInfo.responseBody = response.data;
+    }
   } else {
     naverInfo.success = true;
     naverInfo.videoUrl = media.textContent.trim();
