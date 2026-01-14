@@ -659,12 +659,20 @@ async function addReport(currentItem) {
       } else if (isHivestack === 'Y') {
         // HIVESTACK: 무조건 저장
         shouldSaveReport = true;
+      } else if (isHivestack === 'A') {
+        // NAVER: HIVESTACK_URL에 결과 저장 후 저장
+        currentItem.report.HIVESTACK_URL = `${reportUrl} ${response.status}`;
+        shouldSaveReport = true;
       }
     } catch (error) {
       console.log('reportUrl 호출 실패', error);
 
       // Hivestack은 실패해도 저장해야 함
       if (isHivestack === 'Y') {
+        shouldSaveReport = true;
+      } else if (isHivestack === 'A') {
+        // NAVER: 실패 시에도 저장
+        currentItem.report.HIVESTACK_URL = `${reportUrl} ${error.message}`;
         shouldSaveReport = true;
       }
     }
