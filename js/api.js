@@ -745,7 +745,7 @@ const fileToPlaylistSrc = file => {
       HIVESTACK_YN: file.HIVESTACK_YN,
       URL_YN: file.URL_YN,
       DEVICE_URL: file.DEVICE_URL,
-      // HIVESTACK_URL: file.VIDEO_URL,
+      HIVESTACK_URL: null,
       PLAY_ON: null,
     },
   };
