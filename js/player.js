@@ -655,11 +655,11 @@ async function addReport(currentItem) {
 
         const resultStrings = results.map((result, index) => {
           const url = reportUrl[index];
-          if (result.status === 'fulfilled') {
-            return `${url} ${result.value.status}`;
-          } else {
-            return `${url} ${result.reason.message}`;
+          let status = 'FAIL';
+          if (result.status === 'fulfilled' && result.value.status === 200) {
+            status = '200';
           }
+          return `${url} ${status}`;
         });
 
         // 1000자 제한 및 저장
