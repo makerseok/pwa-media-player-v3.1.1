@@ -646,34 +646,51 @@ async function addReport(currentItem) {
   let shouldSaveReport = false;
 
   if (reportUrl) {
-    try {
-      const response = await axios.get(reportUrl);
+    // Naver의 경우 reportUrl이 배열일 수 있음
+    if (Array.isArray(reportUrl) && isHivestack === 'A') {
+      try {
+        const results = await Promise.allSettled(
+          reportUrl.map(url => axios.get(url))
+        );
 
-      if (isHivestack === 'V') {
-        // VISTAR: status 200일 경우에만 저장
-        if (response.status === 200) {
-          shouldSaveReport = true;
-        } else {
-          console.log(`Vistar reportUrl 호출 실패 (status: ${response.status})`);
-        }
-      } else if (isHivestack === 'Y') {
-        // HIVESTACK: 무조건 저장
+        const resultStrings = results.map((result, index) => {
+          const url = reportUrl[index];
+          if (result.status === 'fulfilled') {
+            return `${url} ${result.value.status}`;
+          } else {
+            return `${url} ${result.reason.message}`;
+          }
+        });
+
+        // 1000자 제한 및 저장
+        currentItem.report.HIVESTACK_URL = resultStrings.join('\n').substring(0, 1000);
         shouldSaveReport = true;
-      } else if (isHivestack === 'A') {
-        // NAVER: HIVESTACK_URL에 결과 저장 후 저장
-        currentItem.report.HIVESTACK_URL = `${reportUrl} ${response.status}`;
+      } catch (error) {
+        console.log('Error processing Naver report URLs', error);
         shouldSaveReport = true;
       }
-    } catch (error) {
-      console.log('reportUrl 호출 실패', error);
+    } else {
+      try {
+        const response = await axios.get(reportUrl);
 
-      // Hivestack은 실패해도 저장해야 함
-      if (isHivestack === 'Y') {
-        shouldSaveReport = true;
-      } else if (isHivestack === 'A') {
-        // NAVER: 실패 시에도 저장
-        currentItem.report.HIVESTACK_URL = `${reportUrl} ${error.message}`;
-        shouldSaveReport = true;
+        if (isHivestack === 'V') {
+          // VISTAR: status 200일 경우에만 저장
+          if (response.status === 200) {
+            shouldSaveReport = true;
+          } else {
+            console.log(`Vistar reportUrl 호출 실패 (status: ${response.status})`);
+          }
+        } else if (isHivestack === 'Y') {
+          // HIVESTACK: 무조건 저장
+          shouldSaveReport = true;
+        }
+      } catch (error) {
+        console.log('reportUrl 호출 실패', error);
+
+        // Hivestack은 실패해도 저장해야 함
+        if (isHivestack === 'Y') {
+          shouldSaveReport = true;
+        }
       }
     }
 

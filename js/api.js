@@ -203,19 +203,12 @@ const getUrlFromNaver = async (naverUrl, retry = 0) => {
   } else {
     naverInfo.success = true;
     naverInfo.videoUrl = media.textContent.trim();
-    naverInfo.reportUrl = null;
 
-    // Send GET requests to each Tracking URL and log the result (ignore failures)
+    const trackingUrls = [];
     for (let i = 0; i < trackingElements.length; i++) {
-      const trackingUrl = trackingElements.item(i).textContent.trim();
-      axios.get(trackingUrl)
-        .then(response => {
-          console.log(`Tracking URL called: ${trackingUrl}`, response.status);
-        })
-        .catch(error => {
-          console.log(`Tracking URL failed: ${trackingUrl}`, error.message);
-        });
+      trackingUrls.push(trackingElements.item(i).textContent.trim());
     }
+    naverInfo.reportUrl = trackingUrls;
   }
 
   return naverInfo;
